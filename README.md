@@ -42,7 +42,7 @@ Once the database is set up, you can use Oracle SQL Developer or any other SQL c
 
 - Moustafa-FD
 - Contributor 2
-- Contributor 3
+- Toad
 - Ricardo199
 
 ## License
