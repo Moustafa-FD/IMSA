@@ -1,5 +1,5 @@
-drop table Track cascade constraints;
-drop table Team cascade constraints;
+drop table Tracks cascade constraints;
+drop table Teams cascade constraints;
 drop table VehicleDriver cascade constraints;
 drop table Driver cascade constraints;
 drop table Vehicle cascade constraints;
@@ -7,7 +7,7 @@ drop table Tournament cascade constraints;
 drop table Sponsor cascade constraints;
 drop table Roster cascade constraints;
 
-create table Track (
+create table Tracks (
     trackid number,
     trackName varchar2(255),
     location varchar2(255),
@@ -15,22 +15,11 @@ create table Track (
     constraint track_trackid_pk primary key (trackid)
 );
 
-create table Team (
+create table Teams (
     teamid number,
     teamname varchar2(255),
     parentcompany varchar2(255),
     constraint team_teamid_pk primary key (teamid)
-);
-
-create table VehicleDriver (
-    vehicleid number,
-    driverid number,
-    constraint vehicledriver_vehicleid_pk primary key (vehicleid),
-    constraint vehicledriver_driverid_pk primary key (driverid),
-    constraint vehicle_vehicleid_fk foreign key (vehicleid)
-        references vehicleid (vehicleid),
-    constraint driver_driverid_fk foreign key (driverid)
-        references Driver (driverid)
 );
 
 create table Driver (
@@ -41,7 +30,7 @@ create table Driver (
     age varchar2(2),
     constraint driver_driverid_pk primary key (driverid),
     constraint driver_teamid_fk foreign key (teamid)
-        references Team (teamid)
+        references Teams (teamid)
 );
 
 create table Vehicle (
@@ -51,15 +40,25 @@ create table Vehicle (
     constraint vehicle_vehicleid_pk primary key (vehicleid)
 );
 
+create table VehicleDriver (
+    vehicleid number,
+    driverid number,
+    constraint vehicledriverid_pk primary key (vehicleid, driverid),
+    constraint vehicle_vehicleid_fk foreign key (vehicleid)
+        references Vehicle (vehicleid),
+    constraint driver_driverid_fk foreign key (driverid)
+        references Driver (driverid)
+);
+
 create table Tournament (
     tournamentid number,
     trackid number,
-    tourmentName varchar2(255),
-    date date, 
+    tournamentName varchar2(255),
+    tournamentdate date, 
     duration number(2),
     constraint tournament_tournamentid_pk primary key (tournamentid),
     constraint tournament_trackid_fk foreign key (trackid)
-        references Track (trackid)
+        references Tracks (trackid)
 );
 
 create table Sponsor (
@@ -68,9 +67,9 @@ create table Sponsor (
     sponsorname varchar2(255), 
     money number,
     contact varchar2(255),
-    constraint sponsor_sponsorid_pk primary key (sponserid),
+    constraint sponsor_sponsorid_pk primary key (sponsorid),
     constraint sponsor_teamid_fk foreign key (teamid)
-        references Team (teamid)
+        references Teams (teamid)
 );
 
 create table Roster (
