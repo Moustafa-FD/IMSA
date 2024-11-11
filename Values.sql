@@ -77,7 +77,14 @@ INSERT INTO TEAMS VALUES(120, 'Wright Motorsports', 'Porsche');
 
 
 
-
-
-
-
+--== Drivers ==--
+INSERT INTO DRIVER VALUES(1, 1, 'Adam', 'Adelson ', 27);
+INSERT INTO DRIVER VALUES(2, 1, 'Riccardo', 'Agostini', 30);
+INSERT INTO DRIVER VALUES(3, 1, 'Jack', 'Aitken', 29);
+INSERT INTO DRIVER VALUES(4, 1, 'Filipe', 'Albuquerque ', 39);
+INSERT INTO DRIVER VALUES(5, 1, 'James', 'Allen', 28);
+INSERT INTO DRIVER VALUES(6, 1, 'Sebastian', 'Alvarez', 22);
+INSERT INTO DRIVER VALUES(7, 1, 'Dennis', 'Andersen', 50);
+INSERT INTO DRIVER VALUES(8, 1, 'Julien', 'Andlauer', 25);
+INSERT INTO DRIVER VALUES(9, 1, 'Jarett', 'Andretti', 59);
+INSERT INTO DRIVER VALUES(10, 1, 'Scott', 'Andrews', 27);
