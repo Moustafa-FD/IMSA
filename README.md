@@ -40,7 +40,7 @@ Once the database is set up, you can use Oracle SQL Developer or any other SQL c
 
 ## Contributors
 
-- Contributor 1
+- Moustafa-FD
 - Contributor 2
 - Contributor 3
 - Ricardo199
