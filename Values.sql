@@ -88,3 +88,6 @@ INSERT INTO DRIVER VALUES(7, 1, 'Dennis', 'Andersen', 50);
 INSERT INTO DRIVER VALUES(8, 1, 'Julien', 'Andlauer', 25);
 INSERT INTO DRIVER VALUES(9, 1, 'Jarett', 'Andretti', 59);
 INSERT INTO DRIVER VALUES(10, 1, 'Scott', 'Andrews', 27);
+INSERT INTO DRIVER VALUES(11, 1, 'Klaus', 'Bachler', 33);
+INSERT INTO DRIVER VALUES(12, 1, 'Alessandro', 'Balzan', 44);
+INSERT INTO DRIVER VALUES(13, 1, 'Earl', 'Bamber', 34);
