@@ -25,13 +25,14 @@ create table Teams (
 create table Driver (
     driverid number,
     teamid number,
-    firstname varchar2(255),
-    lastname varchar2(255),
-    age varchar2(2),
-    constraint driver_driverid_pk primary key (driverid),
-    constraint driver_teamid_fk foreign key (teamid)
+    Name varchar2(255),
+    Age number(2),
+    Nationality varchar2(20),
+    constraint driverid_id_pk primary key (driverid),
+    constraint teamid_drive_id_fk foreign key (teamid)
         references Teams (teamid)
 );
+
 
 create table Vehicle (
     vehicleid number,
