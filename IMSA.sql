@@ -4,7 +4,7 @@ drop table VehicleDriver cascade constraints;
 drop table Driver cascade constraints;
 drop table Vehicle cascade constraints;
 drop table Tournament cascade constraints;
-drop table Sponsor cascade constraints;
+drop table Sponsors cascade constraints;
 drop table Roster cascade constraints;
 
 create table Tracks (
@@ -62,7 +62,7 @@ create table Tournament (
         references Tracks (trackid)
 );
 
-create table Sponsor (
+create table Sponsors (
     sponsorid number,
     teamid number,
     sponsorname varchar2(255), 
