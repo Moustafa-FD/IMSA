@@ -28,8 +28,8 @@ create table Driver (
     Name varchar2(255),
     Age number(2),
     Nationality varchar2(20),
-    points number,
-    driverTime varchar2(5),
+    overallPoints number,
+    driverTime number,
     constraint driverid_id_pk primary key (driverid),
     constraint teamid_drive_id_fk foreign key (teamid)
         references Teams (teamid)
@@ -92,7 +92,7 @@ create table Race (
     vehicleid number,
     points number,
     racePosition number(2),
-    raceTime varchar(5), 
+    raceTime number, 
     constraint race_raceid_pk primary key (raceid),
     constraint race_driverid_fk foreign key (driverid)
         references Driver (driverid),
