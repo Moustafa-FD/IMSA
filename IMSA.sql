@@ -1,84 +1,84 @@
-drop table Tracks cascade constraints;
-drop table Teams cascade constraints;
-drop table VehicleDriver cascade constraints;
-drop table Driver cascade constraints;
-drop table Vehicle cascade constraints;
 drop table Tournament cascade constraints;
+drop table Tracks cascade constraints;
 drop table Sponsors cascade constraints;
+drop table Vehicles cascade constraints;
+drop table Driver cascade constraints;
+drop table Teams cascade constraints;
 drop table Roster cascade constraints;
+drop table Championship cascade constraints;
+drop table VehicleDriver cascade constraints;
 
 create table Tracks (
-    trackid number,
-    trackName varchar2(255),
-    location varchar2(255),
-    length number,
-    constraint track_trackid_pk primary key (trackid)
+    track_id int primary key,
+    track_name varchar2(255),
+    track_location varchar2(255),
+    track_length int
 );
 
 create table Teams (
-    teamid number,
-    teamname varchar2(255),
-    parentcompany varchar2(255),
-    constraint team_teamid_pk primary key (teamid)
+    team_id int primary key,
+    team_name varchar2(255),
+    parent_company varchar2(255)
 );
 
 create table Driver (
-    driverid number,
-    teamid number,
-    Name varchar2(255),
-    Age number(2),
-    Nationality varchar2(20),
-    constraint driverid_id_pk primary key (driverid),
-    constraint teamid_drive_id_fk foreign key (teamid)
-        references Teams (teamid)
+    driver_id int primary key,
+    team_id int,
+    firstName varchar2(255),
+    lastName varchar2(255),
+    age int,
+    constraint fk_driver_team foreign key (team_id) references Teams (team_id)
 );
 
-create table Vehicle (
-    vehicleid number,
-    make varchar2(255),
-    class varchar2(255),
-    constraint vehicle_vehicleid_pk primary key (vehicleid)
-);
-
-create table VehicleDriver (
-    vehicleid number,
-    driverid number,
-    constraint vehicledriverid_pk primary key (vehicleid, driverid),
-    constraint vehicle_vehicleid_fk foreign key (vehicleid)
-        references Vehicle (vehicleid),
-    constraint driver_driverid_fk foreign key (driverid)
-        references Driver (driverid)
-);
-
-create table Tournament (
-    tournamentid number,
-    trackid number,
-    tournamentName varchar2(255),
-    tournamentdate date, 
-    duration number(2),
-    constraint tournament_tournamentid_pk primary key (tournamentid),
-    constraint tournament_trackid_fk foreign key (trackid)
-        references Tracks (trackid)
+create table Vehicles (
+    vehicle_id int primary key,
+    vehicle_make varchar2(255),
+    vehicle_class varchar2(255)
 );
 
 create table Sponsors (
-    sponsorid number,
-    teamid number,
-    sponsorname varchar2(255), 
-    money number,
+    sponsor_id int primary key,
+    team_id int,
+    sponsor_name varchar2(255),
+    money int,
     contact varchar2(255),
-    constraint sponsor_sponsorid_pk primary key (sponsorid),
-    constraint sponsor_teamid_fk foreign key (teamid)
-        references Teams (teamid)
+    constraint fk_sponsor_team foreign key (team_id) references Teams (team_id)
 );
 
 create table Roster (
-    rosterid number,
-    driverid number,
-    vehicleid number,
-    constraint roster_rosterid_pk primary key (rosterid),
-    constraint roster_driverid_fk foreign key (driverid)
-        references Driver (driverid),
-    constraint roster_vehicleid_fk foreign key (vehicleid)
-        references Vehicle (vehicleid)
+    driver_id int,
+    tournament_id int,
+    vehicle_id int,
+    roster_time time,
+    roster_points int,
+    constraint fk_roster_driver foreign key (driver_id) references Driver (driver_id),
+    constraint fk_roster_tournament foreign key (tournament_id) references Tournament (tournament_id),
+    constraint fk_roster_vehicle foreign key (vehicle_id) references Vehicles (vehicle_id)
+);
+
+create table Championship (
+    champ_id int primary key,
+    driver_id int,
+    overall_points int,
+    constraint fk_champ_driver foreign key (driver_id) references Driver (driver_id)
+);
+
+-- someone double check roster here; since idk if it's connected both ways round
+create table Tournament (
+    tournament_id int primary key,
+    track_id int,
+    champ_id int,
+    tournament_name varchar2(255),
+    tournament_date date,
+    tournament_duration time,
+    constraint fk_tournament_track foreign key (track_id) references Tracks (track_id),
+    constraint fk_tournament_champ foreign key (champ_id) references Championship (champ_id),
+);
+
+create table VehicleDriver (
+    vehicle_id int,
+    driver_id int,
+    primary key (vehicle_id, driver_id),
+    constraint fk_vehicledriver_vehicle foreign key (vehicle_id) references Vehicles (vehicle_id),
+    constraint fk_vehicledriver_driver foreign key (driver_id) references Driver (driver_id)
 );
