@@ -33,7 +33,6 @@ create table Driver (
         references Teams (teamid)
 );
 
-
 create table Vehicle (
     vehicleid number,
     make varchar2(255),
