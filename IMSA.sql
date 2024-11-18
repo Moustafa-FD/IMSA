@@ -92,7 +92,7 @@ create table Race (
     vehicleid number,
     points number,
     racePosition number(2),
-    raceDate date,
+    raceTime varchar(5), 
     constraint race_raceid_pk primary key (raceid),
     constraint race_driverid_fk foreign key (driverid)
         references Driver (driverid),
