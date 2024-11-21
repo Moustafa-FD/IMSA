@@ -22,12 +22,14 @@ create table Teams (
 );
 
 create table Driver (
-    driver_id int primary key,
-    team_id int,
-    firstName varchar2(255),
-    lastName varchar2(255),
-    age int,
-    constraint fk_driver_team foreign key (team_id) references Teams (team_id)
+    driverid number,
+    teamid number,
+    Name varchar2(255),
+    Age number(2),
+    Nationality varchar2(20),
+    constraint driverid_id_pk primary key (driverid),
+    constraint teamid_drive_id_fk foreign key (teamid)
+        references Teams (teamid)
 );
 
 create table Vehicles (
