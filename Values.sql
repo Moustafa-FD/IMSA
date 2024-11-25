@@ -153,7 +153,7 @@ INSERT INTO VEHICLE VALUES(82, 'Ferrari 296 GT3', 'GTD Pro');
 
 
 
---== Spensors ==--
+--== Sponsors ==--
 INSERT INTO SPONSORS VALUES(1, 7, 'PPG', 7845000, null);
 INSERT INTO SPONSORS VALUES(2, 7, 'Hitachi', 9200000, null);
 INSERT INTO SPONSORS VALUES(3, 7, 'Root Insurance', 7600000, null);

@@ -72,7 +72,7 @@ create table Tournament (
     tournament_date date,
     tournament_duration time,
     constraint fk_tournament_track foreign key (track_id) references Tracks (track_id),
-    constraint fk_tournament_champ foreign key (champ_id) references Championship (champ_id),
+    constraint fk_tournament_champ foreign key (champ_id) references Championship (champ_id)
 );
 
 create table VehicleDriver (
