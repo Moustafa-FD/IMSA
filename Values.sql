@@ -250,17 +250,3 @@ INSERT INTO VehicleDriver VALUES (12015, 12, 15);
 INSERT INTO VehicleDriver VALUES (122089, 122, 89);
 INSERT INTO VehicleDriver VALUES (13031, 13, 31);
 INSERT INTO VehicleDriver VALUES (32017, 32, 17);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
