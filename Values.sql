@@ -1,5 +1,3 @@
-
-
 --== Tracks ==--
 INSERT INTO TRACKS VALUES(1, 'Daytona International Speedway', 'Daytona Beach, Florida', 4.023);
 INSERT INTO TRACKS VALUES(2, 'Sebring International Raceway', 'Sebring, Florida', 6.019);
@@ -14,12 +12,9 @@ INSERT INTO TRACKS VALUES(10, 'Indianapolis Motor Speedway', 'Speedway, Indiana'
 INSERT INTO TRACKS VALUES(11, 'Michelin Raceway Road Atlanta', 'Braselton, Georgia', 4.088);
 
 
-
 --== championship ==--
 INSERT INTO CHAMPIONSHIP  values (1, 'IMSA SportsCar Championship', 2024);
 INSERT INTO CHAMPIONSHIP  values (2, 'IMSA SportsCar Championship', 2023);
-
-
 
 
 --== Tournament ==--
@@ -49,31 +44,17 @@ INSERT INTO Tournament VALUES(21, 10, 2, 'Tirerack.com Battle on the Bricks', TO
 INSERT INTO Tournament VALUES(22, 11, 2, 'Motul Petit Le Mans', TO_DATE('12-10-2023', 'DD-MM-YYYY'), 10);
 
 
-
-
-
-
-
-
-
-
-
 --== Teams ==--
 --Grand Touring Prototype (GTP)
-
 INSERT INTO TEAMS VALUES(63, 'Lamborghini – Iron Lynx', 'Iron Lynx');
 INSERT INTO TEAMS VALUES(7, 'Porsche Penske Motorsport', 'Porsche AG');
 INSERT INTO TEAMS VALUES(1, 'Cadillac Racing', 'General Motors');
 
 
-
 --Le Mans Prototype 2 (LMP2)
-
 INSERT INTO TEAMS VALUES(04, 'CrowdStrike Racing by APR', 'CrowdStrike');
 INSERT INTO TEAMS VALUES(2, 'United Autosports USA', 'United Autosports');
 INSERT INTO TEAMS VALUES(8, 'Tower Motorsports', 'DD');
-
-
 
 
 --GTD Pro
@@ -82,24 +63,13 @@ INSERT INTO TEAMS VALUES(111, 'Paul Miller Racing', 'BMW AG');
 INSERT INTO TEAMS VALUES(3, 'Corvette Racing by Pratt Miller Motorsports', 'General Motors');
 
 
-
-
 --GTD
 INSERT INTO TEAMS VALUES(23, 'Triarsi Competizione', 'Ferrari');
 INSERT INTO TEAMS VALUES(21, 'Vasser Sullivan', 'Vasser Sullivan Racing');
 INSERT INTO TEAMS VALUES(13, 'AWA', 'Chevrolet');
 
 
-
-
-
-
-
-
-
-
-
--- == Vehicles ==--
+--== Vehicles ==--
 
 --GTP--
 INSERT INTO VEHICLE VALUES(63, 'Lamborghini SC63', 'GTP');
@@ -112,8 +82,6 @@ INSERT INTO VEHICLE VALUES(01, 'Cadillac V-Series.R', 'GTP');
 INSERT INTO VEHICLE VALUES(02, 'Cadillac V-Series.R', 'GTP');
 
 
-
-
 --LMP2--
 INSERT INTO VEHICLE VALUES(04, 'Oreca 07', 'LMP2');
 INSERT INTO VEHICLE VALUES(05, 'Oreca 07', 'LMP2');
@@ -123,7 +91,6 @@ INSERT INTO VEHICLE VALUES(22, 'Oreca 07', 'LMP2');
 
 INSERT INTO VEHICLE VALUES(8, 'Oreca 07', 'LMP2');
 INSERT INTO VEHICLE VALUES(9, 'Oreca 07', 'LMP2');
-
 
 
 --GTD Pro--
@@ -146,17 +113,6 @@ INSERT INTO VEHICLE VALUES(89, 'Lexus RC F GT3', 'GTD');
 
 INSERT INTO VEHICLE VALUES(31, 'Chevrolet Corvette Z06 GT3.R', 'GTD');
 INSERT INTO VEHICLE VALUES(17, 'Chevrolet Corvette Z06 GT3.R', 'GTD');
-
-
-
-
-
-
-
-
-
-
-
 
 
 --== DRIVERS ==--
@@ -206,18 +162,7 @@ INSERT INTO Driver  VALUES(13, 13, 'Orey Fidani', 38, 'Canadian');
 INSERT INTO Driver  VALUES(32, 13, 'Nicolás Varrone', 24, 'Argentine');
 
 
-
---
-
-
-
-
-
-
-
-
 --==vehicleDriver==--
-
 
 -- GTP Class
 INSERT INTO VehicleDriver VALUES (56063, 56, 63);

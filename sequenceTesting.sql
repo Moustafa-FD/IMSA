@@ -23,4 +23,3 @@ begin
 end;
 
 SELECT * FROM Tournament;
-
