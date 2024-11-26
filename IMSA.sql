@@ -91,26 +91,3 @@ create table Roster (
     constraint fk_roster_tournament foreign key (tournament_id) references Tournament (tournament_id)
 );
 
-
-create or replace procedure fill_championship is
-begin
-    for rec in (
-        select champ_id, championship_name, year
-        from (
-            select champ_id, championship_name, year, row_number() over (partition by champ_id order by tournament_date desc) as rn
-            from Tournament t
-            join Championship c on t.champ_id = c.champ_id
-        )
-        where rn <= 12
-    ) loop
-        merge into Championship c
-        using dual
-        on (c.champ_id = rec.champ_id)
-        when matched then
-            update set championship_name = rec.championship_name, year = rec.year
-        when not matched then
-            insert (champ_id, championship_name, year)
-            values (rec.champ_id, rec.championship_name, rec.year);
-    end loop;
-end;
-
