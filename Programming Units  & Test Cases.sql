@@ -101,7 +101,6 @@ BEGIN
         RACE_ENTERIES => v_race_entries
     );
 
-    -- Display the results
     DBMS_OUTPUT.PUT_LINE('Number of Podiums: ' || v_podiums);
     DBMS_OUTPUT.PUT_LINE('Number of Wins: ' || v_wins);
     DBMS_OUTPUT.PUT_LINE('Number of Race Entries: ' || v_race_entries);
@@ -110,6 +109,86 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
 END;
 /
+
+
+
+
+
+--func2
+
+CREATE OR REPLACE
+FUNCTION NationInfo
+    (nation IN DRIVER.NATIONALITY%TYPE,
+    nation_count OUT NUMBER,
+    nation_best OUT NUMBER)
+
+RETURN NUMBER
+IS
+    Record_Not_Found Exception;
+BEGIN
+
+    select count(*)
+    INTO nation_count
+    from driver 
+    where nationality = nation;
+    
+    
+    IF nation_count = 0 THEN
+        RAISE Record_Not_Found;
+    END IF;
+    
+    
+    SELECT driver_id
+    into nation_best
+    FROM (
+        SELECT driver_id, SUM(roster_points) AS total_points
+        FROM driver
+        JOIN VEHICLEDRIVER USING(driver_id)
+        JOIN roster USING (drivervehicle_pair_id)
+        WHERE nationality = nation
+        GROUP BY driver_id
+        ORDER BY total_points DESC
+    )
+    FETCH FIRST 1 ROW ONLY;    
+    
+    return nation_count;
+    return nation_best;   
+    
+EXCEPTION
+    WHEN Record_Not_Found THEN
+        DBMS_OUTPUT.PUT_LINE('No Nationality Record Found');
+END;
+/
+    
+
+
+--test case
+
+
+DECLARE
+    v_nation varchar2(50) := 'Canadian'; 
+    v_nation_count NUMBER;
+    v_nation_best NUMBER;
+    v_return_value NUMBER;
+    r_driver_name VARCHAR2(60);
+BEGIN
+    v_return_value := NationInfo(v_nation, v_nation_count, v_nation_best);
+
+
+    select name
+    into r_driver_name
+    from driver
+    where driver_id = v_nation_best;
+
+    DBMS_OUTPUT.PUT_LINE('Number of ' || v_nation ||  ' drivers are: ' || v_nation_count);
+    DBMS_OUTPUT.PUT_LINE('Best driver of nation is: ' || r_driver_name);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+
 
 
 
