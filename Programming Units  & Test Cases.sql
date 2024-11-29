@@ -206,12 +206,6 @@ END;
 
 --== Sequence ==--
 
-
--- Create a sequence
--- Insert Sample Data
--- Update a Table with it
-
-
 create sequence autoFillPrimaryKey
 start with 1
 increment by 1
