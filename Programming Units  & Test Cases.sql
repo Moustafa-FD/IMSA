@@ -23,7 +23,6 @@ begin
 end;
 
 
-
 --== Functions ==--
 
 
@@ -34,7 +33,6 @@ FUNCTION RacingRecord
     Podiums OUT NUMBER,
     WINS OUT NUMBER,
     RACE_ENTERIES OUT NUMBER)
-
 
 RETURN NUMBER
 IS
@@ -200,7 +198,11 @@ END;
 
 --== Indexes ==--
 
+CREATE INDEX idx_roster_pair_position ON Roster(drivervehicle_pair_id, finishing_position);
+-- boosts performance of the RacingRecord function
 
+CREATE INDEX idx_tournament_champ_id ON Tournament(champ_id);
+-- boosts performance of the fillchampionship procedure
 
 
 
