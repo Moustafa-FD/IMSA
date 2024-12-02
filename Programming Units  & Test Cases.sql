@@ -284,6 +284,22 @@ END;
 /
 
 
+CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
+    p_year IN Championship.year%TYPE
+) AS
+BEGIN
+    OPEN cur FOR
+    SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+           Tr.track_name, Tr.track_location, Ch.championship_name
+    FROM Tournament T
+    JOIN Tracks Tr ON T.track_id = Tr.track_id
+    JOIN Championship Ch ON T.champ_id = Ch.champ_id
+    WHERE Ch.year = p_year;
+
+    DBMS_SQL.RETURN_RESULT(cur);
+END;
+
+
 --== Packages ==--
 
 
