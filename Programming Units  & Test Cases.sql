@@ -1,26 +1,27 @@
 --== Procedures ==--
 
-create or replace procedure fill_championship is
-begin
-    for rec in (
-        select champ_id, championship_name, year
-        from (
-            select champ_id, championship_name, year, row_number() over (partition by champ_id order by tournament_date desc) as rn
-            from Tournament t
-            join Championship c on t.champ_id = c.champ_id
+CREATE OR REPLACE PROCEDURE fill_championship IS
+BEGIN
+    FOR rec IN (
+        SELECT champ_id, championship_name, year
+        FROM (
+            SELECT c.champ_id, c.championship_name, c.year, 
+                   ROW_NUMBER() OVER (PARTITION BY c.champ_id ORDER BY t.tournament_date DESC) AS rn
+            FROM Tournament t
+            JOIN Championship c ON t.champ_id = c.champ_id
         )
-        where rn <= 12
-    ) loop
-        merge into Championship c
-        using dual
-        on (c.champ_id = rec.champ_id)
-        when matched then
-            update set championship_name = rec.championship_name, year = rec.year
-        when not matched then
-            insert (champ_id, championship_name, year)
-            values (rec.champ_id, rec.championship_name, rec.year);
-    end loop;
-end;
+        WHERE rn <= 12
+    ) LOOP
+        MERGE INTO Championship c
+        USING dual
+        ON (c.champ_id = rec.champ_id)
+        WHEN MATCHED THEN
+            UPDATE SET championship_name = rec.championship_name, year = rec.year
+        WHEN NOT MATCHED THEN
+            INSERT (champ_id, championship_name, year)
+            VALUES (rec.champ_id, rec.championship_name, rec.year);
+    END LOOP;
+END;
 
 
 --== Functions ==--
@@ -287,13 +288,6 @@ END;
 CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
     p_year IN Championship.year%TYPE
 ) AS
-    v_tournament_id Tournament.tournament_id%TYPE;
-    v_tournament_name Tournament.tournament_name%TYPE;
-    v_tournament_date Tournament.tournament_date%TYPE;
-    v_tournament_duration Tournament.tournament_duration%TYPE;
-    v_track_name Tracks.track_name%TYPE;
-    v_track_location Tracks.track_location%TYPE;
-    v_championship_name Championship.championship_name%TYPE;
     CURSOR cur IS
         SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
                Tr.track_name, Tr.track_location, Ch.championship_name
@@ -304,13 +298,13 @@ CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
 BEGIN
     OPEN cur;
     LOOP
-        FETCH cur INTO v_tournament_id, v_tournament_name, v_tournament_date, v_tournament_duration,
-                      v_track_name, v_track_location, v_championship_name;
+        FETCH cur INTO T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+                      Tr.track_name, Tr.track_location, Ch.championship_name;
         EXIT WHEN cur%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || v_tournament_id || ', Name: ' || v_tournament_name ||
-                             ', Date: ' || v_tournament_date || ', Duration: ' || v_tournament_duration ||
-                             ', Track Name: ' || v_track_name || ', Location: ' || v_track_location ||
-                             ', Championship: ' || v_championship_name);
+        DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || T.tournament_id || ', Name: ' || T.tournament_name ||
+                             ', Date: ' || T.tournament_date || ', Duration: ' || T.tournament_duration ||
+                             ', Track Name: ' || Tr.track_name || ', Location: ' || Tr.track_location ||
+                             ', Championship: ' || Ch.championship_name);
     END LOOP;
     CLOSE cur;
 END;
