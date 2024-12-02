@@ -190,7 +190,98 @@ END;
 
 
 
---== Triggeres ==--
+--== Triggers ==--
+
+-- 1: For avoiding championships to exceed eleven tournaments
+CREATE OR REPLACE TRIGGER prevent_over_eleven_trigger
+BEFORE INSERT ON TOURNAMENT
+FOR EACH ROW
+DECLARE
+    c_index NUMBER;
+    c_amt NUMBER;
+BEGIN
+    c_index := :NEW.CHAMP_ID;
+    SELECT COUNT(*) INTO c_amt FROM TOURNAMENT WHERE CHAMP_ID=c_index;
+    IF c_amt >= 11 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Tournament cannot be inserted: Championship is full!');
+    END IF;
+END;
+/
+
+-- 2: For autocompleting placements
+CREATE OR REPLACE TRIGGER AUTOCOMPLETE_PLACEMENT_TRIGGER
+BEFORE INSERT ON ROSTER
+FOR EACH ROW
+DECLARE
+    rank NUMBER;
+    score NUMBER;
+BEGIN
+    -- Count the number of people with a time equal to or earlier than the new time
+    SELECT count(*) INTO rank 
+    FROM roster 
+    JOIN vehicledriver USING (drivervehicle_pair_id)
+    JOIN vehicle USING (vehicle_id)
+    -- Find matching class-tournament pairs
+    WHERE ( drivervehicle_pair_id, tournament_id) IN (
+        SELECT drivervehicle_pair_id, tournament_id FROM roster 
+        JOIN vehicledriver USING (drivervehicle_pair_id)
+        JOIN vehicle USING (vehicle_id)
+        WHERE vehicle_class IN (
+                SELECT vehicle_class
+                FROM vehicledriver
+                JOIN vehicle USING (vehicle_id)
+                WHERE drivervehicle_pair_id = :NEW.drivervehicle_pair_id
+                and tournament_id = :NEW.tournament_id
+        )
+            )
+    AND calculate_seconds(roster_time) <= calculate_seconds(:NEW.roster_time);
+
+    -- Calculate the rank by adding 1 and setting it to the finishing_position
+    rank := rank + 1;
+    :NEW.finishing_position := rank;
+    
+    -- Update the existing ranks by incrementing positions greater than or equal to the new rank
+    UPDATE roster
+    SET finishing_position = finishing_position + 1
+    WHERE finishing_position >= rank
+    AND ( drivervehicle_pair_id, tournament_id) IN (
+        SELECT drivervehicle_pair_id, tournament_id FROM roster 
+        JOIN vehicledriver USING (drivervehicle_pair_id)
+        JOIN vehicle USING (vehicle_id)
+        WHERE vehicle_class IN (
+                SELECT vehicle_class
+                FROM vehicledriver
+                JOIN vehicle USING (vehicle_id)
+                WHERE drivervehicle_pair_id = :NEW.drivervehicle_pair_id
+                and tournament_id = :NEW.tournament_id
+        )
+            )
+    ;
+    
+    -- Update the scores of all
+    UPDATE roster
+    SET roster_points = CASE finishing_position
+                         WHEN 1 THEN 25
+                         WHEN 2 THEN 18
+                         WHEN 3 THEN 15
+                         WHEN 4 THEN 12
+                         WHEN 5 THEN 10
+                         ELSE 0
+                     END
+    where tournament_id = :NEW.tournament_id
+    AND ( drivervehicle_pair_id, tournament_id) IN (
+        SELECT drivervehicle_pair_id, tournament_id FROM roster 
+        JOIN vehicledriver USING (drivervehicle_pair_id)
+        JOIN vehicle USING (vehicle_id)
+        WHERE vehicle_class IN (
+                SELECT vehicle_class
+                FROM vehicledriver
+                JOIN vehicle USING (vehicle_id)
+                WHERE drivervehicle_pair_id = :NEW.drivervehicle_pair_id
+                and tournament_id = :NEW.tournament_id
+        ));
+END;
+/
 
 
 --== Packages ==--
