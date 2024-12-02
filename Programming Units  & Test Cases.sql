@@ -287,16 +287,25 @@ END;
 CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
     p_year IN Championship.year%TYPE
 ) AS
+    CURSOR cur IS
+        SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+               Tr.track_name, Tr.track_location, Ch.championship_name
+        FROM Tournament T
+        JOIN Tracks Tr ON T.track_id = Tr.track_id
+        JOIN Championship Ch ON T.champ_id = Ch.champ_id
+        WHERE Ch.year = p_year;
 BEGIN
-    OPEN cur FOR
-    SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
-           Tr.track_name, Tr.track_location, Ch.championship_name
-    FROM Tournament T
-    JOIN Tracks Tr ON T.track_id = Tr.track_id
-    JOIN Championship Ch ON T.champ_id = Ch.champ_id
-    WHERE Ch.year = p_year;
-
-    DBMS_SQL.RETURN_RESULT(cur);
+    OPEN cur;
+    LOOP
+        FETCH cur INTO T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+                      Tr.track_name, Tr.track_location, Ch.championship_name;
+        EXIT WHEN cur%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || T.tournament_id || ', Name: ' || T.tournament_name ||
+                             ', Date: ' || T.tournament_date || ', Duration: ' || T.tournament_duration ||
+                             ', Track Name: ' || Tr.track_name || ', Location: ' || Tr.track_location ||
+                             ', Championship: ' || Ch.championship_name);
+    END LOOP;
+    CLOSE cur;
 END;
 
 
