@@ -87,6 +87,7 @@ end functionPackage;
 
 create or replace package procedurePackage is
     procedure fill_championship;
+    procedure retrieve_tournament_schedule(p_year in Championship.year%TYPE)
 end;
 /
 create or replace package body procedurePackage
@@ -111,6 +112,37 @@ create or replace package body procedurePackage
             end loop;
     end fill_championship;
 
-    -- procedure 
+    begin retrieve_tournament_schedule(p_year in Championship.year%TYPE) as 
+
+        v_tournament_id Tournament.tournament_id%TYPE;
+        v_tournament_name Tournament.tournament_name%TYPE;
+        v_tournament_date Tournament.tournament_date%TYPE;
+        v_tournament_duration Tournament.tournament_duration%TYPE;
+        v_track_name Tracks.track_name%TYPE;
+        v_track_location Tracks.track_location%TYPE;
+        v_championship_name Championship.championship_name%TYPE;
+
+        CURSOR cur is 
+            select t.tournament_id, t.tournament_name, t.tournament_date, t.tournament_duration,
+                   tr.track_name, tr.track_location, ch.championships_name
+            from Tournament T
+            join Tracks tr on t.track_id = tr.track_id
+            join Championship ch on t.champ_id = ch.champ_id
+            where ch.year = p.year;
+
+        begin
+            open cur;
+            loop
+                fetch cur into v_tournament_id, v_tournament_name, v_tournament_date, v_tournament_duration
+                               v_track_name, v_track_location, v_championship_name;
+                exit when cur%NOTFOUND;
+
+                DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || v_tournament_id || ', Name: ' || v_tournament_name ||
+                             ', Date: ' || v_tournament_date || ', Duration: ' || v_tournament_duration ||
+                             ', Track Name: ' || v_track_name || ', Location: ' || v_track_location ||
+                             ', Championship: ' || v_championship_name);
+            end loop
+            close cur;
+        end retrieve_tournament_schedule;
 end procedurePackage;
 /
