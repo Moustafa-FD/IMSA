@@ -283,7 +283,7 @@ BEGIN
 END;
 /
 
-
+--== procedure to retrieve tournament schedule ==--
 CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
     p_year IN Championship.year%TYPE
 ) AS
