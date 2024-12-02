@@ -24,6 +24,45 @@ BEGIN
 END;
 
 
+
+CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
+    p_year IN Championship.year%TYPE
+) AS
+
+    v_tournament_id Tournament.tournament_id%TYPE;
+    v_tournament_name Tournament.tournament_name%TYPE;
+    v_tournament_date Tournament.tournament_date%TYPE;
+    v_tournament_duration Tournament.tournament_duration%TYPE;
+    v_track_name Tracks.track_name%TYPE;
+    v_track_location Tracks.track_location%TYPE;
+    v_championship_name Championship.championship_name%TYPE;
+    
+    CURSOR cur IS
+        SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+               Tr.track_name, Tr.track_location, Ch.championship_name
+        FROM Tournament T
+        JOIN Tracks Tr ON T.track_id = Tr.track_id
+        JOIN Championship Ch ON T.champ_id = Ch.champ_id
+        WHERE Ch.year = p_year;
+BEGIN
+    OPEN cur;
+    LOOP
+
+        FETCH cur INTO v_tournament_id, v_tournament_name, v_tournament_date, v_tournament_duration,
+                      v_track_name, v_track_location, v_championship_name;
+        EXIT WHEN cur%NOTFOUND;
+        
+
+        DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || v_tournament_id || ', Name: ' || v_tournament_name ||
+                             ', Date: ' || v_tournament_date || ', Duration: ' || v_tournament_duration ||
+                             ', Track Name: ' || v_track_name || ', Location: ' || v_track_location ||
+                             ', Championship: ' || v_championship_name);
+    END LOOP;
+    CLOSE cur;
+END;
+
+
+
 --== Functions ==--
 
 
@@ -284,30 +323,7 @@ BEGIN
 END;
 /
 
---== procedure to retrieve tournament schedule ==--
-CREATE OR REPLACE PROCEDURE retrieve_tournament_schedule (
-    p_year IN Championship.year%TYPE
-) AS
-    CURSOR cur IS
-        SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
-               Tr.track_name, Tr.track_location, Ch.championship_name
-        FROM Tournament T
-        JOIN Tracks Tr ON T.track_id = Tr.track_id
-        JOIN Championship Ch ON T.champ_id = Ch.champ_id
-        WHERE Ch.year = p_year;
-BEGIN
-    OPEN cur;
-    LOOP
-        FETCH cur INTO T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
-                      Tr.track_name, Tr.track_location, Ch.championship_name;
-        EXIT WHEN cur%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || T.tournament_id || ', Name: ' || T.tournament_name ||
-                             ', Date: ' || T.tournament_date || ', Duration: ' || T.tournament_duration ||
-                             ', Track Name: ' || Tr.track_name || ', Location: ' || Tr.track_location ||
-                             ', Championship: ' || Ch.championship_name);
-    END LOOP;
-    CLOSE cur;
-END;
+
 
 
 --== Packages ==--
