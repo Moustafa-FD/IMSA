@@ -27,7 +27,7 @@ To set up the database, follow these steps:
     ```sh
     cd IMSA
     ```
-4. Execute the provided SQL scripts to create the database schema and populate it with initial data.
+4. Execute the provided SQL scripts in order based on their numbering, to create the database schema and populate it with initial data.
 
 ## Usage
 
