@@ -1,0 +1,95 @@
+--procedure 1 = updates the Championship table with the latest tournament details, limited to 11 tournaments per championship.
+BEGIN
+    imsaFunctionality.fill_championship;
+END;
+/
+
+SELECT * FROM Championship;
+
+--procedure 2 = Displays Schedule of the championship fight for the selected year
+BEGIN
+    functionPackage.retrieve_tournament_schedule(2024);
+END;
+/
+
+
+
+--Function 1 = Display Drivers racing record
+DECLARE
+    driverID      NUMBER := 56;
+    v_podiums      NUMBER;
+    v_wins         NUMBER;
+    v_race_entries NUMBER;
+    v_result       NUMBER; 
+BEGIN
+
+    v_result := imsaFunctionality.RacingRecord(
+        DriveId      => driverID, 
+        Podiums      => v_podiums,
+        WINS         => v_wins,
+        RACE_ENTERIES => v_race_entries
+    );
+
+    DBMS_OUTPUT.PUT_LINE('Number of Podiums: ' || v_podiums);
+    DBMS_OUTPUT.PUT_LINE('Number of Wins: ' || v_wins);
+    DBMS_OUTPUT.PUT_LINE('Number of Race Entries: ' || v_race_entries);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+
+-- Function 2 = Displays number of drivers from country, and their most sucessfull driver name
+DECLARE
+    v_nation varchar2(50) := 'Canadian'; 
+    v_nation_count NUMBER;
+    v_nation_best NUMBER;
+    v_return_value NUMBER;
+    r_driver_name VARCHAR2(60);
+BEGIN
+    v_return_value := imsaFunctionality.NationInfo(v_nation, v_nation_count, v_nation_best);
+
+
+    select name
+    into r_driver_name
+    from driver
+    where driver_id = v_nation_best;
+
+    DBMS_OUTPUT.PUT_LINE('Number of ' || v_nation ||  ' drivers are: ' || v_nation_count);
+    DBMS_OUTPUT.PUT_LINE('Best driver of nation is: ' || r_driver_name);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+
+--Trigger 1 = For avoiding championships to exceed eleven tournaments
+INSERT INTO TOURNAMENT (tournament_id, track_id, champ_id, tournament_name, tournament_date, tournament_duration)
+VALUES (12, 1, 1, 'Test Tournament', SYSDATE, 3);
+
+
+--Trigger 2 = Inserts points, if not added by finishing position
+INSERT INTO ROSTER(drivervehicle_pair_id, tournament_id, finishing_position, roster_time) 
+VALUES(122089, 22, 6, '+04:39');
+
+select * from roster
+where drivervehicle_pair_id = 122089
+  AND tournament_id = 22;
+
+--Sequence
+--A
+INSERT INTO Tournament
+VALUES (autoFillPrimaryKey.nextVal, 1, 3, 'Test Tournament', SYSDATE, 3);
+INSERT INTO Tournament
+VALUES (autoFillPrimaryKey.nextVal, 2, 3, 'Test Tournament2', SYSDATE, 3);
+
+select * from Tournament where champ_id = 3;
+
+--B
+
+update Tournament 
+set tournament_id = autoFillPrimaryKey.nextVal;
+
+SELECT autoFillPrimaryKey.currVal FROM DUAL;
