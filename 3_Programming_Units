@@ -1,0 +1,284 @@
+
+
+
+--== Triggers ==--
+-- 1: For avoiding championships to exceed eleven tournaments
+CREATE OR REPLACE TRIGGER prevent_over_eleven_trigger
+BEFORE INSERT ON TOURNAMENT
+FOR EACH ROW
+DECLARE
+    c_index NUMBER;
+    c_amt NUMBER;
+BEGIN
+    c_index := :NEW.CHAMP_ID;
+    SELECT COUNT(*) INTO c_amt FROM TOURNAMENT WHERE CHAMP_ID=c_index;
+    IF c_amt >= 11 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Tournament cannot be inserted: Championship is full!');
+    END IF;
+END;
+/
+
+
+
+
+
+
+CREATE OR REPLACE TRIGGER trg_update_roster_points
+BEFORE INSERT ON ROSTER
+FOR EACH ROW
+BEGIN
+    IF :NEW.finishing_position IS NOT NULL AND :NEW.roster_points IS NULL THEN
+        CASE :NEW.finishing_position
+            WHEN 1 THEN
+                :NEW.roster_points := 25;
+            WHEN 2 THEN
+                :NEW.roster_points := 18;
+            WHEN 3 THEN
+                :NEW.roster_points := 15;
+            WHEN 4 THEN
+                :NEW.roster_points := 12;
+            WHEN 5 THEN
+                :NEW.roster_points := 10;
+            WHEN 6 THEN
+                :NEW.roster_points := 8;
+            ELSE
+                :NEW.roster_points := 0; 
+        END CASE;
+    END IF;
+END;
+/
+
+--== Indexes ==--
+
+CREATE INDEX idx_roster_pair_position ON Roster(drivervehicle_pair_id, finishing_position);
+-- boosts performance of the RacingRecord function
+
+CREATE INDEX idx_tournament_champ_id ON Tournament(champ_id);
+-- boosts performance of the fillchampionship procedure
+
+
+
+--== Sequence ==--
+
+create sequence autoFillPrimaryKey
+start with 1
+increment by 1
+nocache;
+
+
+
+
+
+
+--Packages:
+
+
+CREATE OR REPLACE PACKAGE imsaFunctionality IS
+
+    FUNCTION RacingRecord(
+        DriveId IN DRIVER.DRIVER_ID%TYPE,
+        Podiums OUT NUMBER,
+        WINS OUT NUMBER,
+        RACE_ENTERIES OUT NUMBER
+    ) RETURN NUMBER;
+
+    FUNCTION NationInfo(
+        nation IN DRIVER.NATIONALITY%TYPE,
+        nation_count OUT NUMBER,
+        nation_best OUT NUMBER
+    ) RETURN NUMBER;
+
+
+    PROCEDURE fill_championship;
+
+    PROCEDURE retrieve_tournament_schedule(
+        p_year IN Championship.year%TYPE
+    );
+END imsaFunctionality;
+/
+
+
+
+CREATE OR REPLACE PACKAGE BODY imsaFunctionality IS
+    PROCEDURE fill_championship IS
+        e_no_records_found EXCEPTION;
+    BEGIN
+        FOR rec IN (
+            SELECT champ_id, championship_name, year
+            FROM (
+                SELECT c.champ_id, c.championship_name, c.year, 
+                    ROW_NUMBER() OVER (PARTITION BY c.champ_id ORDER BY t.tournament_date DESC) AS rn
+                FROM Tournament t
+                JOIN Championship c ON t.champ_id = c.champ_id
+            )
+            WHERE rn <= 11
+        ) LOOP
+            MERGE INTO Championship c
+            USING dual
+            ON (c.champ_id = rec.champ_id)
+            WHEN MATCHED THEN
+                UPDATE SET championship_name = rec.championship_name, year = rec.year
+            WHEN NOT MATCHED THEN
+                INSERT (champ_id, championship_name, year)
+                VALUES (rec.champ_id, rec.championship_name, rec.year);
+        END LOOP;
+
+        EXCEPTION
+            WHEN e_no_records_found THEN
+                DBMS_OUTPUT.PUT_LINE('No records found for the given championships!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error occurred: ' || SQLERRM);
+    END;
+
+
+
+    PROCEDURE retrieve_tournament_schedule (
+        p_year IN Championship.year%TYPE
+    ) AS
+
+        v_tournament_id Tournament.tournament_id%TYPE;
+        v_tournament_name Tournament.tournament_name%TYPE;
+        v_tournament_date Tournament.tournament_date%TYPE;
+        v_tournament_duration Tournament.tournament_duration%TYPE;
+        v_track_name Tracks.track_name%TYPE;
+        v_track_location Tracks.track_location%TYPE;
+        v_championship_name Championship.championship_name%TYPE;
+
+        CURSOR cur IS
+            SELECT T.tournament_id, T.tournament_name, T.tournament_date, T.tournament_duration,
+                Tr.track_name, Tr.track_location, Ch.championship_name
+            FROM Tournament T
+            JOIN Tracks Tr ON T.track_id = Tr.track_id
+            JOIN Championship Ch ON T.champ_id = Ch.champ_id
+            WHERE Ch.year = p_year;
+            
+        e_no_tournaments EXCEPTION;
+    BEGIN
+        OPEN cur;
+        LOOP
+            FETCH cur INTO v_tournament_id, v_tournament_name, v_tournament_date, v_tournament_duration,
+                        v_track_name, v_track_location, v_championship_name;
+            EXIT WHEN cur%NOTFOUND;
+
+            DBMS_OUTPUT.PUT_LINE('Tournament ID: ' || v_tournament_id || ', Name: ' || v_tournament_name ||
+                                ', Date: ' || v_tournament_date || ', Duration: ' || v_tournament_duration ||
+                                ', Track Name: ' || v_track_name || ', Location: ' || v_track_location ||
+                                ', Championship: ' || v_championship_name);
+        END LOOP;
+        CLOSE cur;
+
+        EXCEPTION
+            WHEN e_no_tournaments THEN
+                DBMS_OUTPUT.PUT_LINE('No tournaments found for the given year!');
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Unexpected error occurred: ' || SQLERRM);
+    END;
+
+
+    --Func 1
+    FUNCTION RacingRecord
+        (DriveId IN DRIVER.DRIVER_ID%TYPE,
+        Podiums OUT NUMBER,
+        WINS OUT NUMBER,
+        RACE_ENTERIES OUT NUMBER)
+    RETURN NUMBER
+    IS
+        Driver_Record_Not_Found EXCEPTION;
+        v_race_entries NUMBER := 0;
+        v_podiums NUMBER := 0;
+        v_wins NUMBER := 0;
+    BEGIN
+        SELECT COUNT(ROSTER_POINTS)
+        INTO v_race_entries
+        FROM ROSTER 
+        JOIN VEHICLEDRIVER USING(drivervehicle_pair_id)
+        WHERE driver_id = DriveId;
+        
+        IF v_race_entries = 0 THEN
+            RAISE Driver_Record_Not_Found;
+        END IF;
+
+        RACE_ENTERIES := v_race_entries;
+
+        SELECT COUNT(ROSTER_POINTS)
+        INTO v_podiums
+        FROM ROSTER 
+        JOIN VEHICLEDRIVER USING(drivervehicle_pair_id)
+        WHERE driver_id = DriveId
+        AND finishing_position >= 3;
+
+        Podiums := v_podiums;
+
+        SELECT COUNT(ROSTER_POINTS)
+        INTO v_wins
+        FROM ROSTER 
+        JOIN VEHICLEDRIVER USING(drivervehicle_pair_id)
+        WHERE driver_id = DriveId
+        AND finishing_position = 1;
+
+        WINS := v_wins;
+
+        RETURN v_race_entries;
+
+    EXCEPTION
+        WHEN Driver_Record_Not_Found THEN
+            DBMS_OUTPUT.PUT_LINE('Driver has no records or does not exist!');
+            RETURN -1;
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('Unexpected error occurred: ' || SQLERRM);
+            RETURN -1;
+    END;
+    
+
+
+
+
+    --func2
+
+    
+    FUNCTION NationInfo
+        (nation IN DRIVER.NATIONALITY%TYPE,
+        nation_count OUT NUMBER,
+        nation_best OUT NUMBER)
+
+    RETURN NUMBER
+    IS
+        Record_Not_Found Exception;
+    BEGIN
+
+        select count(*)
+        INTO nation_count
+        from driver 
+        where nationality = nation;
+        
+        
+        IF nation_count = 0 THEN
+            RAISE Record_Not_Found;
+        END IF;
+        
+        
+        SELECT driver_id
+        into nation_best
+        FROM (
+            SELECT driver_id, SUM(roster_points) AS total_points
+            FROM driver
+            JOIN VEHICLEDRIVER USING(driver_id)
+            JOIN roster USING (drivervehicle_pair_id)
+            WHERE nationality = nation
+            GROUP BY driver_id
+            ORDER BY total_points DESC
+        )
+        FETCH FIRST 1 ROW ONLY;    
+        
+        return nation_count;
+        return nation_best;   
+        
+    EXCEPTION
+        WHEN Record_Not_Found THEN
+            DBMS_OUTPUT.PUT_LINE('No Nationality Record Found');
+    END;
+    
+
+
+    END imsaFunctionality;
+/
